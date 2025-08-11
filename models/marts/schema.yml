@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: dim_customers data model data from stg_customers and fct_orders.
+    columns:
+      - name: customer_id
+        description: The primary key for dim_customers table.
+        tests:
+          - unique
+          - not_null
+      - name: first_order_date
+        description: NULL when a customer has not yet placed an order.
+  - name: fct_orders
+    description: fct_orders data model data from stg_orders and stg_payments.
+    columns:
+      - name: order_id
+        description: The primary key for fct_orders table.
+        tests:
+          - unique
+          - not_null

@@ -1,0 +1,47 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+    commands:
+      - pip install --upgrade pip
+      - pip install "dbt-core==1.9.*" "dbt-snowflake==1.9.*" snowflake-connector-python
+
+  pre_build:
+    commands:
+      - echo "DBT_ACCOUNT=${DBT_ACCOUNT}"
+      - mkdir -p ~/.dbt
+      - |
+        cat > ~/.dbt/profiles.yml <<YAML
+        dbt_demo_project:
+          target: dev
+          outputs:
+            dev:
+              type: snowflake
+              account: ${DBT_ACCOUNT}
+              user: ${DBT_USER}
+              password: ${DBT_PASSWORD}
+              role: ${DBT_ROLE}
+              database: ${DBT_DATABASE}
+              warehouse: ${DBT_WAREHOUSE}
+              schema: ${DBT_SCHEMA}
+              threads: 2
+              client_session_keep_alive: false
+        YAML
+      - dbt --version
+      - dbt clean
+      - dbt deps
+
+  build:
+    commands:
+      - dbt deps
+      - dbt seed || true         # ok if you have no seeds
+      - dbt build                # run + test (+ snapshot if present)
+      - dbt docs generate
+
+artifacts:
+  files:
+    - target/**
+    - logs/**
+  discard-paths: no

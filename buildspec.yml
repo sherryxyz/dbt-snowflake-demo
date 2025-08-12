@@ -34,6 +34,7 @@ phases:
 
   build:
     commands:
+      - dbt deps
       - dbt seed || true         # ok if you have no seeds
       - dbt build                # run + test (+ snapshot if present)
       - dbt docs generate
